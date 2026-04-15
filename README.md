@@ -18,7 +18,7 @@
  MSR (%) results of all evaluated OLLMs on the tri-modal conflict dataset. 
 </p>
 <div  align="center">    
-    <img src="./assets/1.1.jpg" width=60%/>
+    <img src="./assets/1.1.png" width=60%/>
 </div>
 
 <p align = "justify"> 
@@ -34,7 +34,7 @@ Pairwise MSR (%) of all evaluated OLLMs under three bi-modal conflict settings.
 Layer-wise modality preference probe accuracy for all evaluated OLLMs.
 </p>
 <div  align="center">    
-    <img src="./assets/2.1.jpg" width=60%/>
+    <img src="./assets/2.1.png" width=60%/>
 </div>
 
 
@@ -43,7 +43,7 @@ Layer-wise modality preference probe accuracy for all evaluated OLLMs.
 Case study.
 </p>
 <div  align="center">    
-    <img src="./assets/3.1.jpg" width=80%/>
+    <img src="./assets/3.1.png" width=80%/>
 </div>
 
 
