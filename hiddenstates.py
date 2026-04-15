@@ -60,7 +60,15 @@ def build_messages(sample):
     ]
     return messages
 
-
+def move_inputs_to_device_and_dtype(batch, device, dtype):
+    out = {}
+    for k, v in batch.items():
+        if torch.is_tensor(v):
+            v = v.to(device)
+            if v.is_floating_point():
+                v = v.to(dtype=dtype)
+        out[k] = v
+    return out
 
 def run(args):
     with open(args.data_file, "r", encoding="utf-8") as f:
@@ -70,7 +78,7 @@ def run(args):
         args.model_path,
         torch_dtype=torch.bfloat16,
         device_map="auto",
-        attn_implementation="flash_attention_2",
+        attn_implementation="flash_attention_2",  
     )
     processor = Qwen2_5OmniProcessor.from_pretrained(args.model_path)
     model.eval()
@@ -80,11 +88,10 @@ def run(args):
     id_C = get_single_token_id(tok, "C")
     optid_to_tokid = {"A": id_A, "B": id_B, "C": id_C}
     print('optid_to_tokid:', optid_to_tokid)
-
     layer_to_h_list = None
+    y_logits = []
     y_softmax = []
     model_outputs = []
-
     for sample in tqdm(data):
         messages = build_messages(sample)
 
@@ -100,14 +107,14 @@ def run(args):
             images=images,
             videos=videos,
             return_tensors="pt",
-            padding=False,               
+            padding=False,              
             use_audio_in_video=False,
         )
 
         prompt_len = inputs["input_ids"].shape[1]
         last_prompt_pos = prompt_len - 1
 
-        inputs = inputs.to(model.device).to(model.dtype)
+        inputs = move_inputs_to_device_and_dtype(inputs, model.device, model.dtype)
 
         with torch.no_grad():
             thinker_out = model.thinker(
@@ -122,28 +129,32 @@ def run(args):
 
             if layer_to_h_list is None:
                 layer_to_h_list = {l: [] for l in range(1, num_layers_total)}
-
             for l in range(1, num_layers_total):
-                hs = hidden_states[l]                 
-                h_last = hs[:, last_prompt_pos, :]    
+                hs = hidden_states[l]                   
+                h_last = hs[:, last_prompt_pos, :]     
                 layer_to_h_list[l].append(
                     h_last.squeeze(0).to(dtype=torch.float32, device="cpu")
                 )
+                
             text_oid, image_oid, audio_oid = option_id_by_modality(sample)
             tok_ids_in_mod_order = torch.tensor(
                 [
-                    optid_to_tokid[text_oid], 
+                    optid_to_tokid[text_oid],   
                     optid_to_tokid[image_oid],  
-                    optid_to_tokid[audio_oid], 
+                    optid_to_tokid[audio_oid],  
                 ],
                 device=thinker_out.logits.device,
             )
-            print('tok_ids_in_mod_order',tok_ids_in_mod_order)
-            next_token_logits = thinker_out.logits[0, -1, :] 
-            logits_tia = next_token_logits[tok_ids_in_mod_order].to(torch.float32) 
-            probs_tia = F.softmax(logits_tia, dim=-1).to("cpu") 
 
+            next_token_logits = thinker_out.logits[0, -1, :].to(torch.float32) 
+
+            probs_full = F.softmax(next_token_logits, dim=-1)         
+            probs_tia  = probs_full[tok_ids_in_mod_order].to("cpu")    
+            logits_tia = next_token_logits[tok_ids_in_mod_order].to("cpu")  
+
+            y_logits.append(logits_tia)
             y_softmax.append(probs_tia)
+
             gen = model.generate(
                 **inputs,
                 use_audio_in_video=False,
@@ -152,7 +163,7 @@ def run(args):
                 return_dict_in_generate=True,
             )
 
-            seqs = gen.sequences            
+            seqs = gen.sequences           
             gen_ids = seqs[:, prompt_len:]
             response = processor.batch_decode(
                 gen_ids,
@@ -161,15 +172,17 @@ def run(args):
             )[0]
             model_outputs.append(response)
 
-    y_softmax = torch.stack(y_softmax, dim=0) 
+    y_logits = torch.stack(y_logits, dim=0) 
+    y_softmax = torch.stack(y_softmax, dim=0)  
 
     save_obj = {l: {"h": torch.stack(layer_to_h_list[l], dim=0)} for l in sorted(layer_to_h_list.keys())}
+    #save_obj["y_logits"] = y_logits
     save_obj["y_softmax"] = y_softmax
     save_obj["model_output"] = model_outputs
 
     os.makedirs(args.output_dir, exist_ok=True)
     model_name = os.path.basename(args.model_path.rstrip("/"))
-    out_path = os.path.join(args.output_dir, f"{model_name}-last_prompt_token.pt")
+    out_path = os.path.join(args.output_dir, f"{model_name}-val.pt")
     torch.save(save_obj, out_path)
     print(f"Saved: {out_path}")
 
@@ -177,8 +190,8 @@ def run(args):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--data_file", type=str, default='test.json')
-    parser.add_argument("--model_path", type=str, default='/huggingface_model/Qwen2.5-Omni-7B')
+    parser.add_argument("--model_path", type=str, default='huggingface_model/Qwen2.5-Omni-7B')
     parser.add_argument("--output_dir", type=str, default='hiddenstates/')
-    parser.add_argument("--max_new_tokens", type=int, default=5)
+    parser.add_argument("--max_new_tokens", type=int, default=8)
     args = parser.parse_args()
     run(args)
