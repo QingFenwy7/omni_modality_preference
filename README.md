@@ -12,7 +12,7 @@
 
 -------------
 
-### Overview
+### Preference Evaluation
 
 <p align = "justify"> 
  Illustration of CONVERT:Contrastive Graph Clustering with Reliable Augmentation mechanism. 
