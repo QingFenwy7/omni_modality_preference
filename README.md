@@ -22,7 +22,9 @@
 </div>
 
 
-### Requirements
+### Preference Emerges
+
+### Hallucination Detection
 
 The proposed CONVERT is implemented with python 3.8.8 on a NVIDIA 2080 Ti GPU. 
 
