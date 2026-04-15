@@ -1,8 +1,8 @@
 
-[stars-img]: https://img.shields.io/github/stars/QingFenwy7/omni_modality_preference1?color=yellow
-[stars-url]: https://github.com/QingFenwy7/omni_modality_preference1/stargazers
-[fork-img]: https://img.shields.io/github/forks/QingFenwy7/omni_modality_preference1?color=lightblue&label=fork
-[fork-url]: https://github.com/QingFenwy7/omni_modality_preference1/network/members
+[stars-img]: https://img.shields.io/github/stars/QingFenwy7/omni_modality_preference?color=yellow
+[stars-url]: https://github.com/QingFenwy7/omni_modality_preference/stargazers
+[fork-img]: https://img.shields.io/github/forks/QingFenwy7/omni_modality_preference?color=lightblue&label=fork
+[fork-url]: https://github.com/QingFenwy7/omni_modality_preference/network/members
 
 
 # Beyond Text-Dominance: Understanding Modality Preference of Omni-modal Large Language Models
