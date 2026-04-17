@@ -23,11 +23,12 @@
 * **Linear probes for hallucination detection:** Hallucination generation is accompanied by abnormally elevated preference probability toward the interfering modality, enabling effective hallucination detection via linear probes.
 
 
-## 📂 Dataset Structure
+## 🔮 Usage
+📍 **Data**:
 ```
 data/conflict_triplets_processed.json
 ```
-
+📍 **Data**:
 <p align = "justify"> 
  MSR (%) results of all evaluated OLLMs on the tri-modal conflict dataset. 
 </p>
