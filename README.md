@@ -10,7 +10,7 @@
 [fork-img]: https://img.shields.io/github/forks/QingFenwy7/omni_modality_preference?color=lightblue&label=fork
 [fork-url]: https://github.com/QingFenwy7/omni_modality_preference/network/members
 
-
+<div align="center">
 [![GitHub stars][stars-img]][stars-url]
 [![GitHub forks][fork-img]][fork-url]
 
