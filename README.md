@@ -1,7 +1,7 @@
 <div align="center">
 <h1> Beyond Text-Dominance: Understanding Modality Preference of Omni-modal Large Language Models
 
-</div>
+
 [![arxiv](] [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT) 
 
 
